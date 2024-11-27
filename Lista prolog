@@ -1,0 +1,204 @@
+%Questão 1
+mamifero(cachorro).
+mamifero(gato).
+mamifero(cavalo).
+ave(papagaio).
+ave(canario).
+ave(urubu).
+reptil(cobra).
+reptil(jacare).
+reptil(limonations).
+
+animal(X) :- mamifero(X);ave(X);reptil(X).
+
+pet(X):- mamifero(X); ave(X).
+
+/*
+a)mamifero(X).
+retornou:
+cachorro,Gato e Cavalo
+b)mamifero(papagaio).
+retornou: "false"
+c)animal(X).
+retornou:
+X = cachorro ;
+X = gato ;
+X = cavalo ;
+X = papagaio ;
+X = canario ;
+X = urubu ;
+X = cobra ;
+X = jacare ;
+X = limonations.
+*/
+
+%Questão 2
+%a)pet(X):- mamifero(X); ave(X).
+%b)pet(cobra).
+%Retornou: "false"
+%c)pet(X).
+%X = cachorro ;
+%X = gato ;
+%X = cavalo ;
+%X = papagaio ;
+%X = canario ;
+%X = urubu.
+
+%Questão 3
+/*
+pai(carlos, matheus).
+pai(carlos, lucas).
+mae(vanessa, matheus).
+mae(vanessa, lucas).
+irmao(matheus, lucas).
+irmao(lucas, matheus).
+*/
+
+pai_ou_mae(X,Y) :- pai(X,Y) ; mae(X,Y).
+/*
+a)pai(carlos,X).
+X = matheus ;
+X = lucas.
+
+b)irmao(matheus,X).
+X = lucas.
+
+c)pai_ou_mae(X,Y) :- pai(X,Y) ; mae(X,Y).
+pai_ou_mae(vanessa,matheus).
+retorna: "true"
+*/
+
+%Questão 5
+%a)
+potencia(_,0,1).%caso base
+potencia(Base,Expoente,Resultado):-
+    Expoente > 0 ,
+    Expoente1 is Expoente - 1 ,
+    potencia(Base,Expoente1,Resultado1) ,
+    Resultado is Base * Resultado1.
+
+%b)
+mdc(A, 0, A). %caso base
+
+mdc(A, B, Resultado) :-
+    B > 0,
+    Resto is A mod B,
+    mdc(B, Resto, Resultado).
+%c)
+soma_quadrados(1,0). %caso base
+soma_quadrados(N, Resultado) :-
+    N > 0, % Verifica se N é positivo.
+    N1 is N - 1, % Reduz o valor de N.
+    soma_quadrados(N1, Resultado1), % Chamada recursiva para calcular a soma dos quadrados até N-1.
+    Resultado is N * N + Resultado1. % Soma o quadrado de N com o resultado parcial.
+
+%Questão 6
+
+pai(joao, pedro).
+pai(joao, ana).
+pai(pedro, carlos).
+
+mae(maria, pedro).
+mae(maria, ana).
+mae(ana, luisa).
+
+%a)
+avo(X, Y) :- pai(X, Z), (pai(Z, Y); mae(Z, Y)).
+avo(X, Y) :- mae(X, Z), (pai(Z, Y); mae(Z, Y)).
+
+%b)
+descendente(X, Y) :- pai(Y, X).
+descendente(X, Y) :- mae(Y, X).
+descendente(X, Y) :- (pai(Y, Z); mae(Y, Z)), descendente(X, Z).
+
+/* 
+c)
+descendente(X,maria).
+X = pedro
+X = ana
+X = carlos
+X = luisa
+*/
+
+%Questão 7
+% Caso base: estamos no estado final com 4 litros em uma das jarras
+resolver((X, Y)) :- 
+    X = 4; 
+    Y = 4.
+
+% Encher a jarra de 3 litros
+encher_3((X, Y), (3, Y)) :- X < 3.
+
+% Encher a jarra de 5 litros
+encher_5((X, Y), (X, 5)) :- Y < 5.
+
+% Esvaziar a jarra de 3 litros
+esvaziar_3((X, Y), (0, Y)) :- X > 0.
+
+% Esvaziar a jarra de 5 litros
+esvaziar_5((X, Y), (X, 0)) :- Y > 0.
+
+% Transferir da jarra de 3 litros para a jarra de 5 litros
+transferir_3_5((X, Y), (0, Z)) :- 
+    Y < 5, 
+    Z is X + Y,
+    Z =< 5.
+transferir_3_5((X, Y), (Z, 5)) :- 
+    Y < 5,
+    Z is X - (5 - Y),
+    Z >= 0.
+
+% Transferir da jarra de 5 litros para a jarra de 3 litros
+transferir_5_3((X, Y), (3, Z)) :- 
+    X < 3, 
+    Z is X + Y,
+    Z =< 3.
+transferir_5_3((X, Y), (3, Z)) :- 
+    X < 3, 
+    Z is Y - (3 - X),
+    Z >= 0.
+% Inicia com o estado (0, 0), ou seja, ambas as jarras vazias
+%?- resolver((0, 0)).
+
+%Questão 8
+% Verifica se a posição (X, Y) é válida no labirinto.
+% A posição é válida se estiver dentro dos limites da matriz e a célula não for uma parede (valor 0).
+valida_posicao(Labirinto, X, Y) :-
+    nth0(X, Labirinto, Linha), % Acessa a linha X do labirinto
+    nth0(Y, Linha, Celula),    % Acessa a célula Y da linha X
+    Celula = 0.                 % A célula deve ser um caminho livre (0).
+
+% Movimentação: tentamos mover para cima, baixo, esquerda ou direita.
+movimento(X1, Y1, X2, Y2) :- X2 is X1 + 1, Y2 = Y1. % Mover para baixo
+movimento(X1, Y1, X2, Y2) :- X2 is X1 - 1, Y2 = Y1. % Mover para cima
+movimento(X1, Y1, X2, Y2) :- X2 = X1, Y2 is Y1 + 1. % Mover para direita
+movimento(X1, Y1, X2, Y2) :- X2 = X1, Y2 is Y1 - 1. % Mover para esquerda
+
+% A busca recursiva: tenta encontrar o ponto final partindo de (X1, Y1).
+% (X1, Y1) é a posição inicial, (X2, Y2) é o ponto final, e Visitas é a lista de células já visitadas.
+caminho(Labirinto, X1, Y1, X2, Y2, Caminho, Visitas) :-
+    valida_posicao(Labirinto, X1, Y1), % Verifica se a célula atual é válida
+    \+ member((X1, Y1), Visitas), % Verifica se a célula já foi visitada
+    (X1 = X2, Y1 = Y2 ->            % Se chegamos no ponto final
+        Caminho = [(X1, Y1)]
+    ;   movimento(X1, Y1, X3, Y3),     % Senão, tentamos mover para uma célula adjacente
+        caminho(Labirinto, X3, Y3, X2, Y2, CaminhoRestante, [(X1, Y1) | Visitas]), % Recursivamente, procuramos o caminho
+        Caminho = [(X1, Y1) | CaminhoRestante] % Adiciona a célula atual ao caminho
+    ).
+
+% Função para iniciar a busca do ponto inicial até o ponto final
+resolver(Labirinto, X1, Y1, X2, Y2, Caminho) :-
+    caminho(Labirinto, X1, Y1, X2, Y2, Caminho, []). % Começa com lista vazia de visitas
+labirinto([
+    [0, 1, 0, 0, 0],
+    [0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0],
+    [1, 1, 0, 0, 0]
+]).
+
+%Como fazer a pesquisa: labirinto(L), resolver(L, 0, 0, 4, 4, Caminho).
+
+
+
+
